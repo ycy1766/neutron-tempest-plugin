@@ -1660,6 +1660,7 @@
     parent: neutron-tempest-plugin-base
     description: |
       Test tap-mirrors with OVN
+    timeout: 10800
     roles:
       - zuul: openstack/devstack
     required-projects:
@@ -1674,15 +1675,21 @@
       network_api_extensions_tempest:
         - tap-mirror
         - tap-mirror-both-direction
+        - tap-mirror-lport
       devstack_localrc:
         Q_AGENT: ovn
         NETWORK_API_EXTENSIONS: "{{ (network_api_extensions_common + network_api_extensions_tempest) | join(',') }}"
+        # devstack drops the extensions that are not in the ML2/OVN list of
+        # neutron from the tempest configuration; tap-mirror-lport is
+        # provided by tap-as-a-service, so add it back for tempest.
+        ADDITIONAL_NETWORK_API_EXTENSIONS: tap-mirror-lport
         BUILD_TIMEOUT: 784
         TAAS_SERVICE_DRIVER: "TAAS:TAAS:neutron_taas.services.taas.service_drivers.ovn.taas_ovn.TaasOvnDriver:default"
-        # mirroring is available from OVN 22.12.0 and use OVS 3.2.1 that also have this
-        # feature and builds with the above OVN
-        OVN_BRANCH: "branch-24.03"
-        OVS_BRANCH: "branch-3.3"
+        # Build from source for lport support (OVN >= 25.09).
+        # Use the OVN/OVS LTS branches proposed for the neutron jobs.
+        OVN_BUILD_FROM_SOURCE: True
+        OVN_BRANCH: "branch-26.03"
+        OVS_BRANCH: "branch-3.7"
       devstack_local_conf:
         test-config:
           $TEMPEST_CONFIG:

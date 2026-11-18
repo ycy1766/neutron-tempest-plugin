@@ -261,3 +261,8 @@
       network_api_extensions_tempest:
         - tap-mirror
         - tap-mirror-both-direction
+      devstack_localrc:
+        # The master job builds OVN 25.09 from source for the lport mirror
+        # type, which this branch does not have: keep the distro packages.
+        ADDITIONAL_NETWORK_API_EXTENSIONS: ""
+        OVN_BUILD_FROM_SOURCE: False
